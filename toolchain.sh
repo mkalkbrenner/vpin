@@ -13,6 +13,9 @@ pandoc -s -S -t docbook vpin.docx -o vpin.db
 xmlstarlet ed -L -d "//sect1[@id='allgemeine-hinweise-für-alle-autoren']" vpin.db
 xmlstarlet ed -L -d "//sect1[@id='inhaltsverzeichnis']" vpin.db
 
+# Remove the copyright section because the copyright will be added to the footer of each page by vpin.xsl
+xmlstarlet ed -L -d "//sect2[@id='copyright']" vpin.db
+
 # Convert some style elements we use at google docs into real docbook elements. 
 xmlstarlet ed -L -r '//blockquote' -v 'warning' vpin.db
 xmlstarlet ed -L -r '//para[emphasis[not(@*)]]' -v 'blockquote' vpin.db
