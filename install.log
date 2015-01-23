@@ -1,4 +1,4 @@
-brew install pandoc xmlto docbook-xsl googlecl
+brew install pandoc xmlto docbook-xsl googlecl xmlstarlet
 export XML_CATALOG_FILES="/usr/local/etc/xml/catalog"
 sudo easy_install pip
 sudo pip install gdata
