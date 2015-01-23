@@ -18,6 +18,9 @@ xmlstarlet ed -L -d "//sect2[@id='copyright']" vpin.db
 
 # Convert some style elements we use at google docs into real docbook elements. 
 xmlstarlet ed -L -r '//blockquote' -v 'warning' vpin.db
+xmlstarlet ed -L -i '//ulink/emphasis' -t 'attr' -n 'role' -v 'underline' vpin.db
+# TODO replace this new blockquote by its direct para child
+xmlstarlet ed -L -r '//listitem/warning' -v 'blockquote' vpin.db
 xmlstarlet ed -L -r '//para[emphasis[not(@*)]]' -v 'blockquote' vpin.db
 xmlstarlet ed -L -r '//blockquote/emphasis' -v 'para' vpin.db
 
