@@ -1,5 +1,13 @@
+body {
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
 .warning {
     border: 3px solid red;
 	font-weight: bold;
 }
 
+.inlinemediaobject > img {
+    max-width: 100%;
+}
