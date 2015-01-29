@@ -25,9 +25,8 @@ xmlstarlet ed -L -r "//glossary/glossentry//tbody//entry[1]" -v "glossdef" vpin.
 xmlstarlet ed -L -r "//glossary/glossentry//tbody//entry" -v "acronym" vpin.db
 
 NUM_ENTRIES=`xmlstarlet sel -t -v "count(//glossterm)" vpin.db`
-for i in {9..1}
+for i in $(seq $NUM_ENTRIES 1)
 do
-	echo "Welcome $i times"
 	xmlstarlet ed -L -m "//glossentry[$i]//glossterm" "//glossentry[$i]" vpin.db
 	xmlstarlet ed -L -m "//glossentry[$i]//acronym" "//glossentry[$i]" vpin.db
 	xmlstarlet ed -L -m "//glossentry[$i]//glossdef" "//glossentry[$i]" vpin.db
@@ -38,7 +37,7 @@ xmlstarlet ed -L -d "//glossentry/acronym[not(normalize-space())]" vpin.db
 xmlstarlet ed -L -s "//glossentry/glossdef[not(normalize-space())]" -t elem -n 'para' -v 'Beschreibung folgt später.' vpin.db
 
 NUM_ENTRIES=`xmlstarlet sel -t -v "count(//glossdef[not(para)])" vpin.db`
-for i in {2..1}
+for i in $(seq $NUM_ENTRIES 1)
 do
 	TEXT=`xmlstarlet sel -t -v "//glossdef[not(para)][$i]" vpin.db`
 	xmlstarlet ed -L -s "//glossdef[not(para)][$i]" -t elem -n 'para' -v "$TEXT" vpin.db
