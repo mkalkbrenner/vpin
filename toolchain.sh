@@ -49,10 +49,26 @@ xmlstarlet ed -L -r "//listitem/blockquote" -v "tmp_blockquote" vpin.db
 xmlstarlet ed -L -r "//blockquote" -v "warning" vpin.db
 xmlstarlet ed -L -r "//tmp_blockquote" -v "blockquote" vpin.db
 
+sed -i .tmp -e s#media/#media/small_#g vpin.db
+
 # Create a set of html pages from the docbook format.
 xmlto xhtml -m vpin.xsl vpin.db -o html/
+
+sed -i .bak -e 's%<img src="media/small_\(image.*\)" />%<a href="#" data-featherlight="media/\1">&</a>%g' html/*.html
+for html in `ls html/*.html`
+do
+	sed -i .bak -n '1h; 1!H; ${ g; s%\(<th align="left">\)\n[[:space:]]*\(<span class="inlinemediaobject">\)%\1\2%g;p;}' $html
+done
+sed -i .bak -e 's%\(<table \)border="1"\(>.*data-featherlight\)%\1border="0" width="402" style="background-color:lightgrey"\2%' html/*.html
+
+rm html/*.bak
 
 # Copy the images form the original docx to the html folder.
 unzip -d tmp vpin.docx
 mv tmp/word/media html/
-
+cd html/media
+for image in `ls`
+do
+	convert $image -resize 400x400 small_$image
+	composite -gravity SouthEast ../../zoom_in.png small_$image small_$image
+done
