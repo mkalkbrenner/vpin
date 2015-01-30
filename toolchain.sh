@@ -70,6 +70,6 @@ mv tmp/word/media html/
 cd html/media
 for image in `ls`
 do
-	convert $image -resize 400x400 small_$image
+	convert $image -resize 400x800 small_$image
 	composite -gravity SouthEast ../../zoom_in.png small_$image small_$image
 done
