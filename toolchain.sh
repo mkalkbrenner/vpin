@@ -9,6 +9,8 @@ google docs get --title='Virtuelle Flipper bauen' --dest=vpin --format=docx
 # Convert the docx to docbook.
 pandoc -s -S -t docbook vpin.docx -o vpin.db
 
+xmlstarlet ed -L -i "/article" --type attr -n "lang" -v "de" vpin.db
+
 # Remove the non content sections from the document.
 xmlstarlet ed -L -d "//sect1[@id='allgemeine-hinweise-für-alle-autoren']" vpin.db
 xmlstarlet ed -L -d "//sect1[@id='inhaltsverzeichnis']" vpin.db
@@ -49,6 +51,14 @@ xmlstarlet ed -L -r "//listitem/blockquote" -v "tmp_blockquote" vpin.db
 xmlstarlet ed -L -r "//blockquote" -v "warning" vpin.db
 xmlstarlet ed -L -r "//tmp_blockquote" -v "blockquote" vpin.db
 
+NUM_ENTRIES=`xmlstarlet sel -t -v "count(//listitem)" vpin.db`
+for i in $(seq $NUM_ENTRIES 1)
+do
+	xmlstarlet ed -L -m "//listitem[$i]/blockquote//para | //listitem[$i]/blockquote//literallayout" "//listitem[$i]" vpin.db
+done
+
+xmlstarlet ed -L -d "//listitem/blockquote" vpin.db
+
 sed -i .tmp -e s#media/#media/small_#g vpin.db
 sed -i .tmp -e s#http://files/#files/#g vpin.db
 
@@ -63,6 +73,10 @@ done
 sed -i .bak -e 's%\(<table \)border="1"\(>.*data-featherlight\)%\1border="0" width="402" style="background-color:lightgrey"\2%' html/*.html
 
 rm html/*.bak
+rm -rf html/fonts
+
+cp bootstrap/css/*.min.css html/css/
+cp -R bootstrap/fonts html/fonts
 
 # Copy the images form the original docx to the html folder.
 unzip -d tmp vpin.docx

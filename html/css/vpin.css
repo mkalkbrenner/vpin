@@ -1,6 +1,13 @@
 body {
-    margin-left: 10%;
-    margin-right: 10%;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+@media only screen and (max-width: 800px) {
+	body {
+	    margin-left: 5%;
+	    margin-right: 5%;
+	}	
 }
 
 .warning {
@@ -10,4 +17,33 @@ body {
 
 .inlinemediaobject > img {
     max-width: 100%;
+}
+
+h2 {
+	font-size: larger;
+}
+
+body > h2 {
+	font-size: larger;
+    text-align: center;
+}
+
+h4 {
+    font-size: larger;
+}
+
+h5 {
+    font-size: larger;
+}
+
+.navheader a {
+    font-size: x-large;
+}
+
+.navfooter a {
+    font-size: x-large;
+}
+
+#license-footer {
+    text-align: center;
 }
