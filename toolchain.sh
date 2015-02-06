@@ -9,6 +9,15 @@ google docs get --title='Virtuelle Flipper bauen' --dest=vpin --format=docx
 # Convert the docx to docbook.
 pandoc -s -S -t docbook vpin.docx -o vpin.db
 
+# Avoid umlauts in URLs
+for i in $(seq 1 5)
+do
+	sed -i .bak -e 's%\(<sect. id=".*\)ä\(.*">\)%\1ae\2%g' vpin.db
+	sed -i .bak -e 's%\(<sect. id=".*\)ö\(.*">\)%\1oe\2%g' vpin.db
+	sed -i .bak -e 's%\(<sect. id=".*\)ü\(.*">\)%\1ue\2%g' vpin.db
+	sed -i .bak -e 's%\(<sect. id=".*\)ß\(.*">\)%\1ss\2%g' vpin.db
+done
+
 xmlstarlet ed -L -i "/article" --type attr -n "lang" -v "de" vpin.db
 
 # Remove the non content sections from the document.
@@ -73,10 +82,6 @@ done
 sed -i .bak -e 's%\(<table \)border="1"\(>.*data-featherlight\)%\1border="0" width="402" style="background-color:lightgrey"\2%' html/*.html
 
 rm html/*.bak
-rm -rf html/fonts
-
-cp bootstrap/css/*.min.css html/css/
-cp -R bootstrap/fonts html/fonts
 
 # Copy the images form the original docx to the html folder.
 unzip -d tmp vpin.docx
