@@ -9,6 +9,10 @@ google docs get --title='Virtuelle Flipper bauen' --dest=vpin --format=docx
 # Convert the docx to docbook.
 pandoc -s -S -t docbook vpin.docx -o vpin.db
 
+# Remove the non content sections from the document.
+xmlstarlet ed -L -d "//sect1[@id='allgemeine-hinweise-für-alle-autoren']" vpin.db
+xmlstarlet ed -L -d "//sect1[@id='inhaltsverzeichnis']" vpin.db
+
 # Avoid umlauts in URLs
 for i in $(seq 1 5)
 do
@@ -19,10 +23,6 @@ do
 done
 
 xmlstarlet ed -L -i "/article" --type attr -n "lang" -v "de" vpin.db
-
-# Remove the non content sections from the document.
-xmlstarlet ed -L -d "//sect1[@id='allgemeine-hinweise-für-alle-autoren']" vpin.db
-xmlstarlet ed -L -d "//sect1[@id='inhaltsverzeichnis']" vpin.db
 
 # Remove the copyright section because the copyright will be added to the footer of each page by vpin.xsl
 xmlstarlet ed -L -d "//sect2[@id='copyright']" vpin.db
