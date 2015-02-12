@@ -71,6 +71,9 @@ xmlstarlet ed -L -d "//listitem/blockquote" vpin.db
 sed -i .tmp -e s#media/#media/small_#g vpin.db
 sed -i .tmp -e s#http://files/#files/#g vpin.db
 
+sed -i .tmp -e "s#\[CODE\]#<computeroutput>#g" vpin.db
+sed -i .tmp -e "s#\[/CODE\]#</computeroutput>#g" vpin.db
+
 # Create a set of html pages from the docbook format.
 xmlto xhtml -m vpin.xsl vpin.db -o html/
 
