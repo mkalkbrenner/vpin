@@ -4,7 +4,7 @@ rm -rf html/media
 rm -rf tmp
 
 # Fetch the current document form google as docx. Pandoc produces a better result from docx compared to odf.
-google docs get --title='Virtuelle Flipper bauen' --dest=vpin --format=docx
+#google docs get --title='Virtuelle Flipper bauen' --dest=vpin --format=docx
 
 # Convert the docx to docbook.
 pandoc -s -S -t docbook vpin.docx -o vpin.db
@@ -16,10 +16,10 @@ xmlstarlet ed -L -d "//sect1[@id='inhaltsverzeichnis']" vpin.db
 # Avoid umlauts in URLs
 for i in $(seq 1 5)
 do
-	sed -i .bak -e 's%\(<sect. id=".*\)ä\(.*">\)%\1ae\2%g' vpin.db
-	sed -i .bak -e 's%\(<sect. id=".*\)ö\(.*">\)%\1oe\2%g' vpin.db
-	sed -i .bak -e 's%\(<sect. id=".*\)ü\(.*">\)%\1ue\2%g' vpin.db
-	sed -i .bak -e 's%\(<sect. id=".*\)ß\(.*">\)%\1ss\2%g' vpin.db
+	sed -i .tmp -e 's%\(<sect. id=".*\)ä\(.*">\)%\1ae\2%g' vpin.db
+	sed -i .tmp -e 's%\(<sect. id=".*\)ö\(.*">\)%\1oe\2%g' vpin.db
+	sed -i .tmp -e 's%\(<sect. id=".*\)ü\(.*">\)%\1ue\2%g' vpin.db
+	sed -i .tmp -e 's%\(<sect. id=".*\)ß\(.*">\)%\1ss\2%g' vpin.db
 done
 
 xmlstarlet ed -L -i "/article" --type attr -n "lang" -v "de" vpin.db
@@ -35,38 +35,12 @@ xmlstarlet ed -L -r "//glossary/glossentry//tbody//entry[1]" -v "glossdef" vpin.
 #all remaining rows become acronyms
 xmlstarlet ed -L -r "//glossary/glossentry//tbody//entry" -v "acronym" vpin.db
 
-NUM_ENTRIES=`xmlstarlet sel -t -v "count(//glossterm)" vpin.db`
-for i in $(seq $NUM_ENTRIES 1)
-do
-	xmlstarlet ed -L -m "//glossentry[$i]//glossterm" "//glossentry[$i]" vpin.db
-	xmlstarlet ed -L -m "//glossentry[$i]//acronym" "//glossentry[$i]" vpin.db
-	xmlstarlet ed -L -m "//glossentry[$i]//glossdef" "//glossentry[$i]" vpin.db
-done
-
-xmlstarlet ed -L -d "//glossentry/tgroup" vpin.db
-xmlstarlet ed -L -d "//glossentry/acronym[not(normalize-space())]" vpin.db
-xmlstarlet ed -L -s "//glossentry/glossdef[not(normalize-space())]" -t elem -n 'para' -v 'Beschreibung folgt später.' vpin.db
-
-NUM_ENTRIES=`xmlstarlet sel -t -v "count(//glossdef[not(para)])" vpin.db`
-for i in $(seq $NUM_ENTRIES 1)
-do
-	TEXT=`xmlstarlet sel -t -v "//glossdef[not(para)][$i]" vpin.db`
-	xmlstarlet ed -L -s "//glossdef[not(para)][$i]" -t elem -n 'para' -v "$TEXT" vpin.db
-done
-
-xmlstarlet ed -L -d "//glossdef/text()" vpin.db
-
 xmlstarlet ed -L -r "//listitem/blockquote" -v "tmp_blockquote" vpin.db
 xmlstarlet ed -L -r "//blockquote" -v "warning" vpin.db
 xmlstarlet ed -L -r "//tmp_blockquote" -v "blockquote" vpin.db
 
-NUM_ENTRIES=`xmlstarlet sel -t -v "count(//listitem)" vpin.db`
-for i in $(seq $NUM_ENTRIES 1)
-do
-	xmlstarlet ed -L -m "//listitem[$i]/blockquote//para | //listitem[$i]/blockquote//literallayout" "//listitem[$i]" vpin.db
-done
-
-xmlstarlet ed -L -d "//listitem/blockquote" vpin.db
+xsltproc -o vpin.db.tmp restructure.xsl vpin.db
+mv vpin.db.tmp vpin.db
 
 sed -i .tmp -e s#media/#media/small_#g vpin.db
 sed -i .tmp -e s#http://files/#files/#g vpin.db
@@ -75,16 +49,16 @@ sed -i .tmp -e "s#\[CODE\]#<computeroutput>#g" vpin.db
 sed -i .tmp -e "s#\[/CODE\]#</computeroutput>#g" vpin.db
 
 # Create a set of html pages from the docbook format.
-xmlto xhtml -m vpin.xsl vpin.db -o html/
+xmlto --skip-validation xhtml -m vpin.xsl vpin.db -o html/
 
-sed -i .bak -e 's%<img src="media/small_\(image.*\)" />%<a href="#" data-featherlight="media/\1">&</a>%g' html/*.html
+sed -i .tmp -e 's%<img src="media/small_\(image.*\)" />%<a href="#" data-featherlight="media/\1">&</a>%g' html/*.html
 for html in `ls html/*.html`
 do
-	sed -i .bak -n '1h; 1!H; ${ g; s%\(<th align="left">\)\n[[:space:]]*\(<span class="inlinemediaobject">\)%\1\2%g;p;}' $html
+	sed -i .tmp -n '1h; 1!H; ${ g; s%\(<th align="left">\)\n[[:space:]]*\(<span class="inlinemediaobject">\)%\1\2%g;p;}' $html
 done
-sed -i .bak -e 's%\(<table \)border="1"\(>.*data-featherlight\)%\1border="0" width="402" style="background-color:lightgrey"\2%' html/*.html
+sed -i .tmp -e 's%\(<table \)border="1"\(>.*data-featherlight\)%\1border="0" width="402" style="background-color:lightgrey"\2%' html/*.html
 
-rm html/*.bak
+rm html/*.tmp
 
 # Copy the images form the original docx to the html folder.
 unzip -d tmp vpin.docx
