@@ -22,7 +22,7 @@ do
 	sed -i .tmp -e 's%\(<sect. id=".*\)ß\(.*">\)%\1ss\2%g' vpin.db
 done
 
-xmlstarlet ed -L -i "/article" --type attr -n "lang" -v "de" vpin.db
+#xmlstarlet ed -L -i "/article" --type attr -n "lang" -v "de" vpin.db
 
 # Remove the copyright section because the copyright will be added to the footer of each page by vpin.xsl
 xmlstarlet ed -L -d "//sect2[@id='copyright']" vpin.db
